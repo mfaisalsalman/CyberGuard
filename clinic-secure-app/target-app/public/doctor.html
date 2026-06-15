@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Clinic - Doctor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6 flex flex-col items-center"
+  >
+    <div class="w-full max-w-5xl space-y-8">
+      <div
+        class="flex items-center justify-between bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl"
+      >
+        <div class="flex items-center space-x-4">
+          <span class="text-4xl">🩺</span>
+          <div>
+            <h1 class="text-2xl font-bold text-blue-400">
+              Clinical Records Management
+            </h1>
+            <p class="text-sm text-slate-400">
+              Internal Hospital Network — Authorized Personnel Only
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span
+            id="doctorRoleBadge"
+            class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-mono border border-blue-500/20"
+          >
+            Role: Medical Admin
+          </span>
+          <button
+            onclick="handleLogout()"
+            class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-xl text-xs font-bold transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg space-y-6"
+      >
+        <div
+          class="flex items-center space-x-2 text-blue-400 font-bold text-lg"
+        >
+          <span>🔍</span>
+          <h2>Patient Vitals & Diagnosis Lookup</h2>
+        </div>
+        <p class="text-xs text-slate-400">
+          Search patient records by entering their Database ID or Full Name.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            id="patientQuery"
+            placeholder="Enter ID (e.g. 1) or Name (e.g. Ahmed Ali)..."
+            class="flex-1 p-3 bg-slate-950 border border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-sm font-mono"
+          />
+          <button
+            onclick="triggerSearch()"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition text-sm shadow-lg shadow-blue-600/20"
+          >
+            Fetch Signals
+          </button>
+        </div>
+
+        <div
+          class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800"
+        >
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead
+              class="bg-slate-900 text-slate-400 uppercase text-xs font-mono border-b border-slate-800"
+            >
+              <tr>
+                <th class="p-4">Record ID</th>
+                <th class="p-4">Patient Name</th>
+                <th class="p-4">Medical Condition / Diagnosis</th>
+                <th class="p-4">Secure Phone Contact</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+              <tr id="placeholderRow">
+                <td
+                  colspan="4"
+                  class="p-8 text-center text-slate-500 text-xs italic"
+                >
+                  No records fetched yet. Utilize the query bar above.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 🔒 حماية اللوحة: تأكيد أن المستخدم مسجل دخول بالفعل
+      window.onload = function () {
+        // كود يقحص إذا كانت الـ Cookie المسماة session_id موجودة في المتصفح أم لا
+        const hasCookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("session_id="));
+
+        if (!hasCookie) {
+          // لو مفيش كوكي اطرد الهاكر أو المستخدم برة
+          window.location.href = "/login.html";
+        } else {
+          // لو الكوكي موجودة افتح اللوحة فوراً
+          const badge = document.getElementById("doctorRoleBadge");
+          if (badge) {
+            badge.innerText = "Session Authenticated via Cookie";
+          }
+        }
+      };
+
+      // دالة الـ Logout لتصفير الجلسة الأمنية
+      function handleLogout() {
+        localStorage.removeItem("medical_session");
+        window.location.href = "/login.html";
+      }
+
+      // دالة تشغيل الـ SQL Injection والبحث في قاعدة البيانات الكبيرة
+      function triggerSearch() {
+        const queryVal = document.getElementById("patientQuery").value;
+        const tbody = document.getElementById("resultsTableBody");
+
+        fetch(`/api/doctor/vitals?id=${encodeURIComponent(queryVal)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            tbody.innerHTML = ""; // تنظيف الجدول
+
+            if (data.error) {
+              tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="p-4 bg-rose-950/20 text-rose-400 font-mono text-xs border border-rose-900/50 rounded-xl">
+                                    <strong>[⚠️ SQL Syntax Error returned by database]:</strong> ${data.error}
+                                </td>
+                            </tr>
+                        `;
+              return;
+            }
+
+            if (data.length === 0) {
+              tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-500 text-xs">
+                                    No records found matching the query.
+                                </td>
+                            </tr>
+                        `;
+              return;
+            }
+
+            // عرض البيانات (سواء سجل واحد أو الـ 15 سجل كلهم أثناء الحقن)
+            data.forEach((patient) => {
+              tbody.innerHTML += `
+                            <tr class="border-b border-slate-900 hover:bg-slate-900/40 transition">
+                                <td class="p-4 font-mono text-blue-400 text-xs font-bold">#00${patient.id}</td>
+                                <td class="p-4 font-semibold text-white">${patient.name}</td>
+                                <td class="p-4 text-amber-400 font-mono text-xs">${patient.disease}</td>
+                                <td class="p-4 font-mono text-slate-400 text-xs">${patient.phone} <span class="text-slate-600 text-[10px] ml-2">(${patient.room})</span></td>
+                            </tr>
+                        `;
+            });
+          })
+          .catch((err) => console.error("Fetch error:", err));
+      }
+    </script>
+  </body>
+</html>
