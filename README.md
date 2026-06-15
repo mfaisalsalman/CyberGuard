@@ -6,6 +6,50 @@ CyberGuard is a full-stack cybersecurity platform designed to automate vulnerabi
 
 ---
 
+## 📸 Platform Screenshots
+
+<details>
+  <summary>🌐 Click to expand Frontend Landing Page Screenshots</summary>
+  <br>
+  <p align="center">
+    <img src="/screenshots/landingpage.png" alt="CyberGuard landingpage" width="80%">
+    <br>
+    <i>Figure 1: CyberGuard Landing Page</i>
+  </p>
+</details>
+
+<details>
+  <summary>🛡️ Click to expand About</summary>
+  <br>
+  <p align="center">
+    <img src="/screenshots/overview.png" alt="overview" width="45%">
+    <img src="/screenshots/keycapabilities.png" alt="keycapabilities" width="45%">
+    <img src="/screenshots/pricing.png" alt="pricing" width="45%">
+    <img src="/screenshots/review.png" alt="review" width="45%">
+    <img src="/screenshots/contactus.png" alt="contactus" width="45%">
+    <br>
+    <i>Figure 2: CyberGuard About</i>
+  </p>
+</details>
+
+<details>
+  <summary>📊 Click to expand Admin Profile</summary>
+  <br>
+  <p align="center">
+    <img src="/screenshots/dashboard.png" alt="dashboard" width="45%">
+    <img src="/screenshots/dashboard1.png" alt="dashboard" width="45%">
+    <img src="/screenshots/scans.png" alt="scans" width="45%">
+    <img src="/screenshots/scans1.png" alt="scans" width="45%">
+    <img src="/screenshots/findings.png" alt="findings" width="45%">
+    <img src="/screenshots/blueteam.png" alt="blueteam" width="45%">
+    <img src="/screenshots/action.png" alt="action" width="45%">
+    <img src="/screenshots/logs.png" alt="logs.png" width="45%">
+    <br>
+    <i>Figure 3: Admin Profile</i>
+  </p>
+</details>
+
+
 ## 🚀 Features
 
 ### Automated Vulnerability Scanning
